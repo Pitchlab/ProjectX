@@ -1,0 +1,30 @@
+﻿<Properties>
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/Player.cs">
+    <Files>
+      <File FileName="Assets/Scripts/Actor.cs" Line="123" Column="3" />
+      <File FileName="Assets/Scripts/Target.cs" Line="181" Column="21" />
+      <File FileName="Assets/Scripts/AIController.cs" Line="54" Column="72" />
+      <File FileName="Assets/Scripts/Player.cs" Line="175" Column="109" />
+      <File FileName="Assets/Scripts/Projectile.cs" Line="37" Column="13" />
+      <File FileName="Assets/Scripts/PlayerCam.cs" Line="27" Column="46" />
+      <File FileName="Assets/Scripts/Actor.cs" Line="449" Column="1" />
+      <File FileName="Assets/Scripts/ProjectileEmitter.cs" Line="1" Column="1" />
+      <File FileName="Assets/Scripts/Locomotor.cs" Line="1" Column="1" />
+      <File FileName="Assets/Scripts/Controller.cs" Line="1" Column="1" />
+      <File FileName="Assets/Scripts/SpawnLocation.cs" Line="44" Column="5" />
+      <File FileName="Assets/Resources/AIBehavior.cs" Line="1" Column="1" />
+      <File FileName="Assets/Scripts/MountPoint.cs" Line="1" Column="1" />
+      <File FileName="Assets/Scripts/MonoSingleton.cs" Line="1" Column="1" />
+      <File FileName="Assets/Scripts/World.cs" Line="1" Column="1" />
+      <File FileName="Assets/Scripts/MountableSensor.cs" Line="78" Column="85" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore>
+      <Breakpoint file="/Users/Ubilaz/New Unity Project/Assets/Scripts/Player.cs" line="252" />
+      <Breakpoint file="/Users/Ubilaz/New Unity Project/Assets/Scripts/Player.cs" line="247" />
+    </BreakpointStore>
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+</Properties>
