@@ -26,7 +26,7 @@ public class PlayerCam : MonoBehaviour {
 		float angle = Mathf.LerpAngle(currentAngle, desiredAngle, Time.deltaTime * damping);
 		Quaternion rotation = Quaternion.Euler(0, angle, 0); //Quaternion.identity; //
 
-		transform.position = target.transform.position - (rotation * offset);
-		transform.LookAt(target.transform);
+		transform.position = target.transform.position - offset;// - (rotation * offset);
+		//transform.LookAt(target.transform);
 	}
 }

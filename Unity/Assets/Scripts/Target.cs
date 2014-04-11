@@ -13,56 +13,38 @@ public class Target : Object
 {
 
 	[SerializeField]
-	private Actor 		tgtActor;			// if a specific actor is targeted
+	private ITargetable 	target;				// if a specific entity is targeted
 	
 	[SerializeField]
-	private Projectile 	tgtProjectile;		// if a specific projectile is targeted
-
-	[SerializeField]
-	private Vector3 	tgtLocation;		// if a target location is always set
+	private Vector3 		tgtLocation;		// if a target location is always set
 	
 	[SerializeField]
-	private float 		age = 0.0f;			// deltaTime
+	private float 			age = 0.0f;			// deltaTime
 
 	[SerializeField]
-	private float 		maxAge = 100.0f;	// deltaTime
+	private float 			maxAge = 100.0f;	// deltaTime
 
 	[SerializeField]
-	private bool 		alive = false;		// is the target still viable (after timeout it 'dies' and can be removed)
+	private bool 			alive = false;		// is the target still viable (after timeout it 'dies' and can be removed)
 
 	// --------------------------------------------------------------------
 	// CONSTRUCTORS 
 	// --------------------------------------------------------------------
 	// Constructor: set actor directly
 	//
-	public Target(Actor a)
+	public Target(ITargetable t)
 	{
-		setTarget(a);
+		setTarget(t);
 	}
 
 	// Constructor: set actor directly with max age
 	//
-	public Target(Actor a, int maxAge)
+	public Target(ITargetable t, int maxAge)
 	{
-		setTarget(a);
+		setTarget(t);
 		setMaxAge(maxAge);
 	}
-
-	// Constructor: set projectile directly
-	//
-	public Target(Projectile p)
-	{
-		setTarget(p);
-	}
-
-	// Constructor: set projectile directly with max age
-	//
-	public Target(Projectile p, int maxAge)
-	{
-		setTarget(p);
-		setMaxAge(maxAge);
-	}
-
+	
 	// Constructor: set location directly
 	//
 	public Target(Vector3 l)
@@ -78,6 +60,13 @@ public class Target : Object
 		setMaxAge(maxAge);
 	}
 
+	// get a new random location
+	//
+	public static Target getRandomTargetLocation()
+	{
+		return new Target(new Vector3(Random.value * 400.0f - 200.0f,0.0f,Random.value * 4000.0f - 200.0f));
+	}
+	
 	// --------------------------------------------------------------------
 	// SETTERS & GETTERS
 	// --------------------------------------------------------------------
@@ -86,51 +75,27 @@ public class Target : Object
 	public void setTarget(Vector3 l)
 	{
 		tgtLocation = l;
-		tgtActor = null;
+		target = null;
 		resetAge();
 	}
 
 	// set actor, if there was a location, forget that
 	//
-	public void setTarget(Actor a)
+	public void setTarget(ITargetable t)
 	{
-		tgtActor = a;
-		tgtLocation = a.transform.position;
+		target = t;
+		tgtLocation = (t as Entity).transform.position;
 		resetAge();
 	}
-
-	// set projectile, if there was a location, forget that
-	//
-	public void setTarget(Projectile p)
-	{
-		tgtProjectile = p;
-		tgtLocation = p.transform.position;
-		resetAge();
-	}
-
-	public bool targetIsActor()
-	{
-		return (tgtActor != null);
-	}
-
-	public bool targetIsProjectile()
-	{
-		return (tgtProjectile != null);
-	}
-
+	
 	public Vector3 getTargetLocation()
 	{
 		return tgtLocation;
 	}
 
-	public Actor getTargetActor()
+	public ITargetable getTarget()
 	{
-		return tgtActor;
-	}
-
-	public Projectile getTargetProjectile()
-	{
-		return tgtProjectile;
+		return target;
 	}
 
 	// Returns true if alive
@@ -144,20 +109,6 @@ public class Target : Object
 	private void setMaxAge(float max)
 	{
 		maxAge = max;
-	}
-
-	// get the distance to the target location or actor
-	//
-	public float getDistance(Vector3 pos)
-	{
-		if (tgtActor != null)
-		{
-			return Vector3.Distance (tgtActor.transform.position, pos);
-		}
-		else 
-		{
-			return Vector3.Distance (tgtLocation, pos);
-		}
 	}
 
 	// --------------------------------------------------------------------
@@ -180,13 +131,9 @@ public class Target : Object
 		{
 			age += deltatime;
 
-			if (targetIsActor())
+			if ((target as Entity) != null)
 			{
-				tgtLocation = tgtActor.transform.position;
-			}
-			else if (targetIsProjectile())
-			{
-				tgtLocation = tgtProjectile.transform.position;
+				tgtLocation = (target as Entity).transform.position;
 			}
 		}
 		
@@ -205,23 +152,5 @@ public class Target : Object
 	public void die() 
 	{
 		alive = false;
-	}
-
-	// degrade the marker
-	// from a live actor mark a position and reset age
-	// from a position set age to -1
-	// 
-	public void degrade() 
-	{
-		if (targetIsActor() || targetIsProjectile ())
-		{
-			tgtActor = null;
-			tgtProjectile = null;
-			resetAge();
-		}
-		else
-		{
-			die ();
-		}
 	}
 }

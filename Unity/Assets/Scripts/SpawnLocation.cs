@@ -11,11 +11,16 @@ public class SpawnLocation : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 	
+		spawn ();
+
+		spawn ();
 	}
 	
 	// Update is called once per frame
-	void Update () {
+	void Update () 
+	{
 
+		//return;
 		if (timer > 0) {
 			timer -= Time.deltaTime;
 		}
@@ -28,15 +33,16 @@ public class SpawnLocation : MonoBehaviour {
 	// spawn a ship 
 	// TODO add arguments
 	//
-	public void spawn() {
-
+	public void spawn() 
+	{
 		GameObject goEnemy = new GameObject();
 		Actor a = goEnemy.AddComponent<Actor>();
 
 		a.init();
 
-		a.controller.trn = Random.value * 10.0f - 5.0f;
-		a.controller.acc = Random.value * 10.0f;
+		a.t.Translate (Random.Range(-50.0f, 50.0f), 0.0f, Random.Range(-50.0f, 50.0f)); 
+		a.controller.setTurn(Random.value * 10.0f - 5.0f);
+		a.controller.setAcc(Random.value * 10.0f);
 
 		//GameObject.Instantiate(enemy, p, transform.rotation) as GameObject;
 		//Actor a = goEnemy.GetComponent<Actor>();

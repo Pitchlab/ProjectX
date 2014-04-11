@@ -2,32 +2,25 @@
 using System.Collections;
 using System.Collections.Generic;
 
-public class Actor : MonoBehaviour {
-
-	// --------------------------------------------------------------------
-	// Basic stuff
-	// --------------------------------------------------------------------
-	// initialized?
-	//
-	[SerializeField]
-	private bool initialized = false;
-
-	// --------------------------------------------------------------------
-	// Game Object & World Related
-	// --------------------------------------------------------------------
-	// The basic transform, cached.
-	//
-	public Transform 	t;
+// --------------------------------------------------------------------
+// Actor
+// --------------------------------------------------------------------
+// any 'sentient' and active game object that actually should be targetable
+// and recognized as such
+//
+public class Actor : Entity, ITargetable {
 
 	// this is a locator that we use to have an independent frame 
 	// for rotation (bank, tilt) 
 	//
 	public GameObject orienter;	
 
+	public bool isAlive = true;
+
 	// the mesh
 	//
-	public string prefabName = "Spacepod"; // default mesh
-	public GameObject mesh;
+	protected string prefabName = "Spacepod"; // default mesh
+	protected GameObject mesh;
 
 	// --------------------------------------------------------------------
 	// Targeting & Factions
@@ -36,7 +29,7 @@ public class Actor : MonoBehaviour {
 	// list ow known targets. The Actor is responsible for maintaining
 	// this list. Sensors will work with this.
 	//
-	public List<Target> targetList = new List<Target>();
+	public List<ITargetable> targetList = new List<ITargetable>();
 
 	// the currently targeted location (if any)
 	// we'll put a sphere there for debug
@@ -47,7 +40,7 @@ public class Actor : MonoBehaviour {
 	// faction id
 	// 
 	[SerializeField]
-	private int faction;
+	protected int faction;
 
 	// --------------------------------------------------------------------
 	// Stats
@@ -58,7 +51,9 @@ public class Actor : MonoBehaviour {
 	//
 	public float maxHp = 100.0f;
 	public float hp    = 100.0f;
-	private Player lastHit;
+
+	protected Actor lastHit;
+	public int score = 0;
 
 	// --------------------------------------------------------------------
 	// Mountpoints
@@ -67,7 +62,6 @@ public class Actor : MonoBehaviour {
 	//
 	// TODO define what kinds of items they can accept.
 	// 
-	public GameObject mountPoints;
 	public List<MountPoint> mountPointList = new List<MountPoint>();
 	
 	// --------------------------------------------------------------------
@@ -104,7 +98,7 @@ public class Actor : MonoBehaviour {
 	//
 	void Update () {
 
-		if (!initialized) return;
+		if (!isInitialized) return;
 
 		// update target list
 		//
@@ -130,15 +124,17 @@ public class Actor : MonoBehaviour {
 	//
 	// This builds the structure we need so make sure it is called
 	//
-	public void init()
+	public override void init()
 	{
-		if (initialized) return;
+		if (isInitialized) return;
+
+		base.init();
 
 		// name
 		name = "Actor";
 
 		// tag
-		gameObject.tag = "Actor";
+		this.gameObject.tag = "Actor";
 
 		// setup clear spawn point
 		t = transform;
@@ -162,9 +158,31 @@ public class Actor : MonoBehaviour {
 
 		// rigid body with damage collider
 		Rigidbody r = gameObject.AddComponent<Rigidbody>();
-		r.useGravity = false;
-		//r.mass = 100000000;
-		r.isKinematic = true;
+		if (r != null)
+		{
+			r.useGravity = false;
+			r.isKinematic = true;
+		}
+
+		// sensor
+		//
+		MountPoint m = addMountPoint(new Vector3(), Quaternion.identity, "MountPointSensor");
+		MountableSensor sns = m.gameObject.AddComponent<MountableSensor>();
+		sns.setOwner(this);
+		sns.init();
+		mount(sns, "MountPointSensor");
+
+		// add weapon MountPoints
+		//
+		m = addMountPoint(new Vector3(), Quaternion.identity, "MountPointWeapon");
+		
+		// add a weapon
+		//
+		LaserWeapon w = m.gameObject.AddComponent<LaserWeapon>();
+		w.setOwner(this);
+		w.init();
+		mount(w, "MountPointWeapon");
+
 		
 		// add default mesh
 		// 
@@ -174,46 +192,28 @@ public class Actor : MonoBehaviour {
 		//
 		hp = maxHp;
 
-		// add MountPoints
-		//
-		addMountPoint(new Vector3(), Quaternion.identity, "MountPoint");
+		isInitialized = true;
 
-		// add a sensor
-		//
-		GameObject goMountableSensor = new GameObject();
-		MountableSensor m = goMountableSensor.AddComponent<MountableSensor>();
-		m.init();
-		m.setOwner(this);
-		mount(m, "MountPoint");
-
-		// init perceptor, controller, locomotor
-		//
-		//initPerceptor();
-		initController();
-		initLocomotor();
-
-		initialized = true;
-	}
-
-	// init perceptor - override for specific perceptor
-	//
-	public virtual void initPerceptor()
-	{
-		//perceptor = new AIPerceptor(this);
+		initController ();
+		initLocomotor ();
 	}
 
 	// init controller - override for specific controller
 	//
 	public virtual void initController()
 	{
-		controller = new AIController(this);
+		controller = gameObject.AddComponent<AIController>();
+		controller.setOwner(this);
+		controller.init();
 	}
 
 	// init locomotor - override for specific locomotor
 	//
 	public virtual void initLocomotor()
 	{
-		locomotor = new Locomotor(this);
+		locomotor = gameObject.AddComponent<Locomotor>();
+		locomotor.setOwner(this);
+		locomotor.init();
 	}
 	
 	// initialize with mesh - override for specifics 
@@ -227,6 +227,31 @@ public class Actor : MonoBehaviour {
 	}
 
 	// --------------------------------------------------------------------
+	// Getters and Setters
+	// --------------------------------------------------------------------
+	//
+	public int getFaction() 
+	{
+		return faction;
+	}
+
+	public void setFaction(int f)
+	{
+		faction = f;
+	}
+
+	// --------------------------------------------------------------------
+	// ITargetable
+	// --------------------------------------------------------------------
+	//
+	public Vector3 getPosition()
+	{
+		if (isAlive) return t.position;
+
+		return new Vector3();
+	}
+
+	// --------------------------------------------------------------------
 	// Mountpoints
 	// --------------------------------------------------------------------
 	//
@@ -234,21 +259,24 @@ public class Actor : MonoBehaviour {
 	// Should only be donw by the factory - no need to remove any mountpoints 
 	// at this time.
 	//
-	public void addMountPoint(Vector3 offset, Quaternion rotation, string name)
+	public MountPoint addMountPoint(Vector3 offset, Quaternion rotation, string name)
 	{
 		GameObject goMountPoint = new GameObject();
 		MountPoint mountPoint = goMountPoint.AddComponent<MountPoint>();
 		mountPoint.transform.position = offset;
 		mountPoint.transform.rotation = rotation;
 		mountPoint.transform.parent = orienter.transform;
+		mountPoint.init ();
 		mountPoint.transform.name = name;
 
 		mountPointList.Add(mountPoint);
+
+		return mountPoint;
 	}
 
 	// mount item
 	//
-	public bool mount(MountableItem item, string mountPointName)
+	public bool mount(IMountable item, string mountPointName)
 	{
 		// get the mount point
 		//
@@ -260,7 +288,7 @@ public class Actor : MonoBehaviour {
 			return true;
 		}
 
-		Debug.Log ("WARNING: Attempted to mount item " + item.name + " to MountPoint " + mountPointName + " - Mountpoint was not found.");
+		Debug.Log ("WARNING: Attempted to mount item " + (item as Entity).name + " to MountPoint " + mountPointName + " - Mountpoint was not found.");
 		return false;
 	}
 
@@ -287,7 +315,7 @@ public class Actor : MonoBehaviour {
 	private MountPoint getMountPointByName(string name)
 	{
 
-		MountPoint m = mountPointList.Find( ni => ni.name == name);
+		MountPoint m = mountPointList.Find( ni => (ni.name == name));
 
 		return m;
 	}
@@ -296,93 +324,78 @@ public class Actor : MonoBehaviour {
 	// Sensing
 	// --------------------------------------------------------------------
 	//
-	public void addTarget(Collider col)
+	public void addTarget(ITargetable tgt)
 	{
-		Debug.Log("Adding: " + col.transform.gameObject);
+		Debug.Log("Adding: " + (tgt as Entity));
 
-		// HACK using tags is unsafe
-		if (col.tag == "Actor")
-		{
-			Actor a = col.transform.gameObject.GetComponent<Actor>();
-			Target t = new Target(a);
-			targetList.Add (t);
-		}
-		else if (col.tag == "Projectile")
-		{
-			Projectile p = col.transform.gameObject.GetComponent<Projectile>();
-			Target t = new Target(p);
-			targetList.Add (t);
-		}
-		else
-		{
-			Target t = new Target(col.transform.position);
-			targetList.Add (t);
-		}
-
+		targetList.Add (tgt);
 	}
 
-	public void removeTarget(Collider col)
+	public void removeTarget(ITargetable tgt)
 	{
-		Debug.Log("Removing: " + col.transform.gameObject);
-
-		foreach (Target t in targetList)
+		foreach (ITargetable t in targetList)
 		{
-			if (t.targetIsActor())
+			if (t == tgt)
 			{
-				Actor a = t.getTargetActor();
-
-				if (col.transform.gameObject.GetComponent<Actor>() == a)
-				{
-					targetList.Remove(t);
-					break;
-				}
-			}
-			else if (t.targetIsProjectile())
-			{
-				Projectile p = t.getTargetProjectile();
-				
-				if (col.transform.gameObject.GetComponent<Projectile>() == p)
-				{
-					targetList.Remove(t);
-					break;
-				}
+				targetList.Remove(t);
+				break;
 			}
 		}
 	}
 
 	private void updateTargets()
 	{
-		List<Target> killList = new List<Target>();
+		List<ITargetable> killList = new List<ITargetable>();
 
-		foreach (Target tgt in targetList)
+		foreach (ITargetable tgt in targetList)
 		{
-			tgt.update();
-
 			// HACK should Behaviour int MountableSensor somehow? 
 			//
-			if (tgt.getDistance(t.position) > 100.0f)
-			{
-				tgt.die ();
-			}
-
-			if (!tgt.isAlive())
+			if ((tgt == null) || (Vector3.Distance(tgt.getPosition(), t.position) > 100.0f))
 			{
 				killList.Add(tgt);
 			}
 			else
 			{
 				// DEBUG
-				Vector3 newDirection = new Vector3(tgt.getTargetLocation().x - t.position.x, tgt.getTargetLocation().y - t.position.y, tgt.getTargetLocation().z - t.position.z);
+				Vector3 newDirection = new Vector3(tgt.getPosition().x - t.position.x, tgt.getPosition().y - t.position.y, tgt.getPosition().z - t.position.z);
 				Debug.DrawRay (transform.position, newDirection, Color.red);
 			}
 		}
 
-		foreach (Target tgt in killList)
+		foreach (ITargetable tgt in killList)
 		{
 			targetList.Remove(tgt);
 		}
 
 		killList.Clear();
+	}
+
+	public ITargetable getTarget()
+	{
+		if (targetList.Count > 0)
+		{
+			return targetList[0] as ITargetable;
+		}
+
+		return null;
+	}
+
+	// --------------------------------------------------------------------
+	// Fire weapons
+	// --------------------------------------------------------------------
+	// TODO make specific? 
+	//
+	public virtual void fireWeapons()
+	{
+		// get any weapons...
+		//
+		Weapon[] wpns = gameObject.GetComponentsInChildren<Weapon>();
+
+		foreach (Weapon w in wpns)
+		{
+			w.fire();
+		}
 	}
 
 	// --------------------------------------------------------------------
@@ -409,12 +422,25 @@ public class Actor : MonoBehaviour {
 	public void die()
 	{
 		Instantiate(Resources.Load("Bang"), t.position, t.rotation);
-		Destroy(gameObject);
+
+		isAlive = false;
 
 		// remove target sphere
 		//
 		Destroy(targetMarker);
+		Destroy(this.gameObject);
+		Debug.Log ("KILL!");
 	}
+		
+	// --------------------------------------------------------------------
+	// Score
+	// --------------------------------------------------------------------
+	//
+	public void addScore(int points) 
+	{
+		score += points;
+	}
+
 
 	// --------------------------------------------------------------------
 	// Collision Detection
@@ -425,24 +451,15 @@ public class Actor : MonoBehaviour {
 	//
 	void OnCollisionEnter(Collision col)
 	{
-		Debug.Log ("Collision!" + col.ToString());
-	
-		// check what hit us
-		//
-		GameObject go = col.gameObject;
+		doCollision(col);
 
-		if (col.gameObject.tag != "Projectile") return;
+	}
 
-		// Projectile? 
-		Projectile p = go.GetComponent<Projectile>();
-		if (p != null)
-		{
-			p.owner.addScore(10);
-			lastHit = p.owner;
-		}
-
-		// attribute points
-		// 
-		damage (10.0f);
+	// this method can be overridden to do custom
+	// collision
+	//
+	protected virtual void doCollision(Collision col)
+	{
+		//Debug.Log ("Collision!" + col.ToString());
 	}
 }

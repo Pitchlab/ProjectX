@@ -1,20 +1,80 @@
 fileFormatVersion: 2
-guid: 95f1058bf829d45b8b9af2581b662292
+guid: 8eb288f6d41284df18a83e1d754d55d8
 ModelImporter:
   serializedVersion: 16
   fileIDToRecycleName:
-    100000: Cube_Cube_Base
-    100002: Cube_Cube_Black
-    100004: //RootNode
-    400000: Cube_Cube_Base
-    400002: Cube_Cube_Black
-    400004: //RootNode
-    2300000: Cube_Cube_Base
-    2300002: Cube_Cube_Black
-    3300000: Cube_Cube_Base
-    3300002: Cube_Cube_Black
-    4300000: Cube_Cube_Base
-    4300002: Cube_Cube_Black
+    100000: Exhaust_Ship
+    100002: Ship_Body Body
+    100004: Ship_Body Cockpit
+    100006: Ship_Body Right_Under Wings_Right
+    100008: Ship_Body Wings_Right Right_Top
+    100010: Ship_Cap
+    100012: Ship_Exhaust4
+    100014: Ship_Exhaust5
+    100016: Ship_Exhaust6
+    100018: Ship_Exhaust7
+    100020: Ship_Left_Under Wings_Left Body
+    100022: Ship_Wings_Left Body Left
+    100024: Ship_Wings_Left Body Left1
+    100026: Ship_Wings_Left Body Left_Top
+    100028: //RootNode
+    400000: Exhaust_Ship
+    400002: Ship_Body Body
+    400004: Ship_Body Cockpit
+    400006: Ship_Body Right_Under Wings_Right
+    400008: Ship_Body Wings_Right Right_Top
+    400010: Ship_Cap
+    400012: Ship_Exhaust4
+    400014: Ship_Exhaust5
+    400016: Ship_Exhaust6
+    400018: Ship_Exhaust7
+    400020: Ship_Left_Under Wings_Left Body
+    400022: Ship_Wings_Left Body Left
+    400024: Ship_Wings_Left Body Left1
+    400026: Ship_Wings_Left Body Left_Top
+    400028: //RootNode
+    2300000: Exhaust_Ship
+    2300002: Ship_Body Body
+    2300004: Ship_Body Cockpit
+    2300006: Ship_Body Right_Under Wings_Right
+    2300008: Ship_Body Wings_Right Right_Top
+    2300010: Ship_Cap
+    2300012: Ship_Exhaust4
+    2300014: Ship_Exhaust5
+    2300016: Ship_Exhaust6
+    2300018: Ship_Exhaust7
+    2300020: Ship_Left_Under Wings_Left Body
+    2300022: Ship_Wings_Left Body Left
+    2300024: Ship_Wings_Left Body Left1
+    2300026: Ship_Wings_Left Body Left_Top
+    3300000: Exhaust_Ship
+    3300002: Ship_Body Body
+    3300004: Ship_Body Cockpit
+    3300006: Ship_Body Right_Under Wings_Right
+    3300008: Ship_Body Wings_Right Right_Top
+    3300010: Ship_Cap
+    3300012: Ship_Exhaust4
+    3300014: Ship_Exhaust5
+    3300016: Ship_Exhaust6
+    3300018: Ship_Exhaust7
+    3300020: Ship_Left_Under Wings_Left Body
+    3300022: Ship_Wings_Left Body Left
+    3300024: Ship_Wings_Left Body Left1
+    3300026: Ship_Wings_Left Body Left_Top
+    4300000: Exhaust_Ship
+    4300002: Ship_Body Body
+    4300004: Ship_Body Cockpit
+    4300006: Ship_Body Right_Under Wings_Right
+    4300008: Ship_Body Wings_Right Right_Top
+    4300010: Ship_Cap
+    4300012: Ship_Exhaust4
+    4300014: Ship_Exhaust5
+    4300016: Ship_Exhaust6
+    4300018: Ship_Exhaust7
+    4300020: Ship_Left_Under Wings_Left Body
+    4300022: Ship_Wings_Left Body Left
+    4300024: Ship_Wings_Left Body Left1
+    4300026: Ship_Wings_Left Body Left_Top
     9500000: //RootNode
   materials:
     importMaterials: 1
@@ -34,7 +94,7 @@ ModelImporter:
     isReadable: 1
   meshes:
     lODScreenPercentages: []
-    globalScale: 1
+    globalScale: 2
     meshCompression: 0
     addColliders: 0
     importBlendShapes: 1

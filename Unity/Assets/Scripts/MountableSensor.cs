@@ -9,27 +9,20 @@ using System.Collections;
 // detect enemies and objectives in range. It will need access to the 
 // owner's target list.
 //
-public class MountableSensor : MountableItem {
-
-	[SerializeField]
-	private bool isInitialized = false;	
-
-	[SerializeField]
-	private Actor owner; 				// who owns this
+public class MountableSensor : Entity, IMountable {
 
 	[SerializeField]
 	private float radius = 50.0f;		// sensor radius
 
-	// Use this for initialization
+	// --------------------------------------------------------------------
+	// Initialize
+	// --------------------------------------------------------------------
 	//
-	void Start () 
-	{
-		init ();
-	}
-
-	public void init()
+	public override void init()
 	{
 		if (isInitialized) return;
+
+		base.init();
 
 		name = "MountableSensor";
 
@@ -43,11 +36,9 @@ public class MountableSensor : MountableItem {
 		isInitialized = true;
 	}
 
-	public void setOwner(Actor a)
-	{
-		owner = a;
-	}
-
+	// --------------------------------------------------------------------
+	// Update
+	// --------------------------------------------------------------------
 	// Update is called once per frame
 	//
 	void Update () 
@@ -55,28 +46,35 @@ public class MountableSensor : MountableItem {
 		if (!isInitialized) return;
 	}
 
+	// --------------------------------------------------------------------
+	// Sensing
+	// --------------------------------------------------------------------
+	// OnTriggerEnter is used to see any incoming items
+	//
 	void OnTriggerEnter(Collider col)
 	{
 		// tell the owner
 		//
-		if (owner != null)
+		//Debug.Log ("Sensor sees " + col.tag);
+		if (col.gameObject.GetComponent<Entity>() is ITargetable)
 		{
-			if ((col.tag == "Actor") || (col.tag == "Projectile"))
+			//Debug.Log (col.transform.name + "(" + col.tag + ")" + " entered my field of view");
+
+			if (owner != null)
 			{
-				Debug.Log (col.transform.name + "(" + col.tag + ")" + " entered my field of view");
-				owner.addTarget(col);
+				owner.addTarget(col.gameObject.GetComponent<Entity>() as ITargetable);
 			}
 		}
 	}
 	
 	void OnTriggerExit(Collider col)
 	{
-		if (owner != null)
+		if (col.gameObject.GetComponent<Entity>() is ITargetable)
 		{
-			if ((col.tag == "Actor") || (col.tag == "Projectile"))
+			if (owner != null)
 			{
-				Debug.Log (col.transform.name + "(" + col.tag + ")" + " left my field of view");
-				owner.removeTarget(col);
+				//Debug.Log (col.transform.name + "(" + col.tag + ")" + " left my field of view");
+				owner.removeTarget(col.gameObject.GetComponent<Entity>() as ITargetable);
 			}
 		}
 	}

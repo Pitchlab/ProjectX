@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 // --------------------------------------------------------------------
 // MountPoint
@@ -8,30 +9,19 @@ using System.Collections;
 // to. The MountPoint will accept certain items. It can also be labeled
 // so that the interface can link to it.
 //
-public class MountPoint : MonoBehaviour {
+public class MountPoint : Entity 
+{
 
-	// --------------------------------------------------------------------
-	// Characteristics
-	// --------------------------------------------------------------------
-	[SerializeField]
-	private bool isInitialized 	= 	false;
-	
-	// --------------------------------------------------------------------
-	// Initialize
-	// --------------------------------------------------------------------
-	// Use this for initialization
-	void Start () 
-	{
-		init();
-	}
-
-	public void init()
+	public override void init()
 	{
 		if (isInitialized) return;
-
+		
+		base.init ();
+		
 		// important stuff here...
 		//
-
+		name = "MountPoint";
+		
 		isInitialized = true;
 	}
 
@@ -41,9 +31,16 @@ public class MountPoint : MonoBehaviour {
 	//
 	// get the mounted item - or null
 	//
-	public MountableItem getMountedItem()
+	public IMountable getMountedItem()
 	{
-		return gameObject.GetComponent<MountableItem>();
+		Entity[] list = gameObject.GetComponents<Entity>();
+
+		foreach (Entity e in list)
+		{
+			if (e is IMountable) return e as IMountable;
+		}
+
+		return null;
 	}
 
 	// --------------------------------------------------------------------
@@ -61,11 +58,14 @@ public class MountPoint : MonoBehaviour {
 	// mount a new item (can only be done if the mount point has not been used)
 	// otherwise destroy the item
 	//
-	public bool mount(MountableItem item)
+	public bool mount(IMountable item)
 	{
+		// dismount any previous items
+		//
 		dismount ();
 
-		item.transform.parent = gameObject.transform;
+		(item as Entity).transform.parent = gameObject.transform;
+		(item as Entity).setParent(this);
 
 		return true;
 	}
@@ -74,10 +74,11 @@ public class MountPoint : MonoBehaviour {
 	//
 	public bool dismount()
 	{
-		MountableItem item = getMountedItem();
+		IMountable item = getMountedItem();
 		if (item != null)
 		{
-			Destroy(item);
+			(item as Entity).setParent(null);
+			Destroy(item as Entity);
 
 			return true;
 		}

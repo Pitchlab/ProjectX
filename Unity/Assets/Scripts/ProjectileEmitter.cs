@@ -3,37 +3,25 @@ using System.Collections;
 
 public class ProjectileEmitter : MonoBehaviour {
 	
-	public GameObject 	projectileFab;
-	public Player 		owner;
 
-	// Use this for initialization
-	void Start () {
-		// Spawn point - position = -3,-3,-1
-		//transform.position = new Vector3(0,0,0);
-	}
+	public string meshName;					// the name of the projectile
 	
-	// Update is called once per frame
-	void Update () {
-	
-	}
+	[SerializeField]
+	private GameObject 	projectileFab;		// placeholder for instantiation
 
+	public Actor 		owner;
+	
 	// launch a projectile
 	//
-	public void Fire() {
+	public void Fire() 
+	{
+		if (owner == null) return;
 
-		// find direction (forward)
-		//
-		Vector3 p = new Vector3(transform.position.x, transform.position.y, transform.position.z);
-		
 		// shoot projectile
 		//
-		//Instantiate(projectileFab, p, transform.rotation);
+		Object o = Resources.Load(meshName);
+		GameObject proj = Instantiate(o, transform.position, transform.rotation) as GameObject;  
 
-		//World.spawnBullet(this.gameObject);
-
-		GameObject projectileGameObject = GameObject.Instantiate(projectileFab, p, transform.rotation) as GameObject;
-		Projectile projectile = projectileGameObject.GetComponent<Projectile>();
-
-		projectile.owner = owner;
+		proj.GetComponent<Projectile>().owner = owner;
 	}
 }
