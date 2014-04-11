@@ -1,0 +1,111 @@
+fileFormatVersion: 2
+guid: cf785a8767fe64fc089a0e856f758b84
+ModelImporter:
+  serializedVersion: 16
+  fileIDToRecycleName:
+    100000: Exhaust_Ship
+    100002: //RootNode
+    100004: Ship_Body Body
+    100006: Ship_Body Cockpit
+    100008: Ship_Body Right_Under Wings_Right
+    100010: Ship_Body Wings_Right Right
+    100012: Ship_Body Wings_Right Right_Top
+    100014: Ship_Cap
+    100016: Ship_Left_Under Wings_Left Body
+    100018: Ship_Wings_Left Body Left
+    100020: Ship_Wings_Left Body Left_Top
+    400000: Exhaust_Ship
+    400002: //RootNode
+    400004: Ship_Body Body
+    400006: Ship_Body Cockpit
+    400008: Ship_Body Right_Under Wings_Right
+    400010: Ship_Body Wings_Right Right
+    400012: Ship_Body Wings_Right Right_Top
+    400014: Ship_Cap
+    400016: Ship_Left_Under Wings_Left Body
+    400018: Ship_Wings_Left Body Left
+    400020: Ship_Wings_Left Body Left_Top
+    2300000: Exhaust_Ship
+    2300002: Ship_Body Body
+    2300004: Ship_Body Cockpit
+    2300006: Ship_Body Right_Under Wings_Right
+    2300008: Ship_Body Wings_Right Right
+    2300010: Ship_Body Wings_Right Right_Top
+    2300012: Ship_Cap
+    2300014: Ship_Left_Under Wings_Left Body
+    2300016: Ship_Wings_Left Body Left
+    2300018: Ship_Wings_Left Body Left_Top
+    3300000: Exhaust_Ship
+    3300002: Ship_Body Body
+    3300004: Ship_Body Cockpit
+    3300006: Ship_Body Right_Under Wings_Right
+    3300008: Ship_Body Wings_Right Right
+    3300010: Ship_Body Wings_Right Right_Top
+    3300012: Ship_Cap
+    3300014: Ship_Left_Under Wings_Left Body
+    3300016: Ship_Wings_Left Body Left
+    3300018: Ship_Wings_Left Body Left_Top
+    4300000: Exhaust_Ship
+    4300002: Ship_Body Body
+    4300004: Ship_Body Cockpit
+    4300006: Ship_Body Right_Under Wings_Right
+    4300008: Ship_Body Wings_Right Right
+    4300010: Ship_Body Wings_Right Right_Top
+    4300012: Ship_Cap
+    4300014: Ship_Left_Under Wings_Left Body
+    4300016: Ship_Wings_Left Body Left
+    4300018: Ship_Wings_Left Body Left_Top
+    9500000: //RootNode
+  materials:
+    importMaterials: 1
+    materialName: 0
+    materialSearch: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    optimizeGameObjects: 0
+    animationCompression: 1
+    animationRotationError: .5
+    animationPositionError: .5
+    animationScaleError: .5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    clipAnimations: []
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 2
+    meshCompression: 0
+    addColliders: 0
+    importBlendShapes: 1
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    weldVertices: 1
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+  tangentSpace:
+    normalSmoothAngle: 60
+    splitTangentsAcrossUV: 1
+    normalImportMode: 0
+    tangentImportMode: 1
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    human: []
+    skeleton: []
+    armTwist: .5
+    foreArmTwist: .5
+    upperLegTwist: .5
+    legTwist: .5
+    armStretch: .0500000007
+    legStretch: .0500000007
+    feetSpacing: 0
+    rootMotionBoneName: 
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 2
+  additionalBone: 0
+  userData: 

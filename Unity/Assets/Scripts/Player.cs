@@ -29,14 +29,18 @@ public class Player : MonoBehaviour {
 	// speed
 	public float maxSpeed = 1.0f;
 	public float minSpeed  = 0.1f;
-	public float acceleration = 0.1f;
 	public float speed = 0.0f;
-	
+
+	// speed boost
+	public float acceleration = 1.0f;	// add to acceleration when boost pressed
+	public float accRate = 0.0f;		// current acceleration
+	public float accFriction = 0.1f;	// reduce acceleration when no boost is pressed
+
 	// Tilt
-	public float maxTilt = 180.0f; 	// Degrees / second
-	public float tiltScale = 60.0f; // Degrees / unitInput * second
-	public float tiltRange = 30.0f; // Degrees
-	private float rotX = 0.0f; 		// Degrees
+	public float maxTilt = 180.0f; 		// Degrees / second
+	public float tiltScale = 60.0f; 	// Degrees / unitInput * second
+	public float tiltRange = 30.0f; 	// Degrees
+	private float rotX = 0.0f; 			// Degrees
 	
 	// Turn
 	public float maxTurn = 360.0f; 		// Degrees / second
@@ -88,16 +92,11 @@ public class Player : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 
-		if (keyboardControls) {
-			deltaX = Input.GetAxis("Horizontal");
-			deltaY = Input.GetAxis("Vertical");
-		} else if (mouseControls) {
-			deltaX = Input.GetAxis("Mouse X")*mouseScale;
-			deltaY = Input.GetAxis("Mouse Y")*mouseScale;
-		} else {
-			deltaX = Input.acceleration.x;
-			deltaY = Input.acceleration.y;
-		}
+
+
+		deltaX = Input.GetAxis("Horizontal");
+		deltaY = Input.GetAxis("Vertical");
+
 
 		// Turn and bank
 		//
@@ -158,7 +157,25 @@ public class Player : MonoBehaviour {
 	}
 
 	public void Accelerate(float acc) {
-		speed += acc;
+
+		// adjust speed boost
+		// 
+		if (acc > 0.0f)
+		{
+			accRate = acceleration;
+		}
+		else 
+		{
+			accRate -= 2 * accFriction;
+			if (accRate < -acceleration)
+			{
+				accRate = -acceleration;
+			}
+		}
+
+		// compute new speed
+
+		speed += accRate;
 
 		if (speed > maxSpeed)
 		{
@@ -172,7 +189,30 @@ public class Player : MonoBehaviour {
 		// Tilt
 		// TODO fix link to the climb rate in smooth way
 		//
-		rotX = ClampAngle(rotX-ClampAngle(-1*acc*tiltScale,-maxTilt,maxTilt)*Time.deltaTime,-tiltRange,tiltRange);
+		//rotX = ClampAngle(rotX-ClampAngle(-1*accRate*tiltScale,-maxTilt/2.0f,maxTilt)*Time.deltaTime,-tiltRange,tiltRange);
+		// HACK - linked the (fixed named!) wings to accelerator
+
+		GameObject w = GameObject.Find("wleft");
+		w.transform.localRotation = Quaternion.Euler(0,-acc*15, 0);
+
+		w = GameObject.Find("uleft");
+		w.transform.localRotation = Quaternion.Euler(0,0, -acc*15);
+		
+		w = GameObject.Find("tleft");
+		w.transform.localRotation = Quaternion.Euler(0,0, acc*15);
+
+		// right
+		//
+		w = GameObject.Find("wright");
+		w.transform.localRotation = Quaternion.Euler(0,acc*15, 0);
+
+		w = GameObject.Find("uright");
+		w.transform.localRotation = Quaternion.Euler(0,0, -acc*15);
+
+		w = GameObject.Find("tright");
+		w.transform.localRotation = Quaternion.Euler(0,0, acc*15);
+
+
 	}
 
 	// Boost is given, boost up towards the ceiling
