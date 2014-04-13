@@ -15,8 +15,6 @@ public class Actor : Entity, ITargetable {
 	//
 	public GameObject orienter;	
 
-	public bool isAlive = true;
-
 	// the mesh
 	//
 	protected string prefabName = "Spacepod"; // default mesh
@@ -31,11 +29,11 @@ public class Actor : Entity, ITargetable {
 	//
 	public List<ITargetable> targetList = new List<ITargetable>();
 
-	// the currently targeted location (if any)
-	// we'll put a sphere there for debug
-	// TODO make invisible
+	// waypoints for orders 
+	// TODO should these be here? or in behaviors? 
+	// TODO add path planning vectors in there
 	//
-	public GameObject targetMarker;
+	protected List<Vector3> waypointList = new List<Vector3>();
 
 	// faction id
 	// 
@@ -89,6 +87,7 @@ public class Actor : Entity, ITargetable {
 	void Start () {
 		
 		init ();
+		//Notifier.addListener("ENTITY.DESTROY", onTargetDied);
 	}
 
 	// --------------------------------------------------------------------
@@ -111,11 +110,6 @@ public class Actor : Entity, ITargetable {
 		// update the locomotor
 		//
 		locomotor.Locomote();
-
-		// DEBUG
-		//
-		//Vector3 newDirection = new Vector3(targetMarker.transform.position.x - t.position.x, targetMarker.transform.position.y - t.position.y, targetMarker.transform.position.z - t.position.z);
-		//Debug.DrawRay (transform.position, newDirection, Color.green);
 	}
 
 	// --------------------------------------------------------------------
@@ -145,10 +139,6 @@ public class Actor : Entity, ITargetable {
 		orienter = new GameObject();
 		orienter.transform.parent = this.transform;
 		orienter.name = "Orienter";
-		
-		// target marker
-		// 
-		targetMarker = new GameObject("Marker");
 
 		// damage collider
 		//
@@ -238,6 +228,10 @@ public class Actor : Entity, ITargetable {
 	public void setFaction(int f)
 	{
 		faction = f;
+
+		// dispatch message
+		//
+		broadcast(new Notification(this, "ACTOR.SETFACTION", f));
 	}
 
 	// --------------------------------------------------------------------
@@ -246,7 +240,7 @@ public class Actor : Entity, ITargetable {
 	//
 	public Vector3 getPosition()
 	{
-		if (isAlive) return t.position;
+		if (alive) return t.position;
 
 		return new Vector3();
 	}
@@ -267,8 +261,7 @@ public class Actor : Entity, ITargetable {
 		mountPoint.transform.rotation = rotation;
 		mountPoint.transform.parent = orienter.transform;
 		mountPoint.init ();
-		mountPoint.transform.name = name;
-
+		mountPoint.name = name;
 		mountPointList.Add(mountPoint);
 
 		return mountPoint;
@@ -312,12 +305,20 @@ public class Actor : Entity, ITargetable {
 
 	// find mount point by name
 	//
-	private MountPoint getMountPointByName(string name)
+	protected MountPoint getMountPointByName(string name)
 	{
+		foreach (MountPoint m in mountPointList)
+		{
+			if (m != null)
+			{
+				if (m.name == name)
+				{
+					return m;
+				}
+			}
+		}
 
-		MountPoint m = mountPointList.Find( ni => (ni.name == name));
-
-		return m;
+		return null;
 	}
 
 	// --------------------------------------------------------------------
@@ -326,9 +327,13 @@ public class Actor : Entity, ITargetable {
 	//
 	public void addTarget(ITargetable tgt)
 	{
-		Debug.Log("Adding: " + (tgt as Entity));
-
 		targetList.Add (tgt);
+
+		(tgt as Entity).addListener("ENTITY.DESTROY", onTargetDied);
+
+		// dispatch message
+		//
+		broadcast(new Notification(this, "ACTOR.ADDTARGET", tgt));
 	}
 
 	public void removeTarget(ITargetable tgt)
@@ -341,6 +346,10 @@ public class Actor : Entity, ITargetable {
 				break;
 			}
 		}
+
+		// dispatch message
+		//
+		broadcast(new Notification(this, "ACTOR.LOSTTARGET", tgt));
 	}
 
 	private void updateTargets()
@@ -373,13 +382,77 @@ public class Actor : Entity, ITargetable {
 
 	public ITargetable getTarget()
 	{
-		if (targetList.Count > 0)
+		foreach (ITargetable t in targetList)
 		{
-			return targetList[0] as ITargetable;
+			if ((t != null) && (t is Actor) && ((t as Actor).getFaction() != faction))
+			{
+				return t as ITargetable;
+			}
 		}
 
 		return null;
 	}
+
+	// message handler for ENTITY.DESTROY
+	//
+	private void onTargetDied(Notification n) 
+	{
+		removeTarget(n.sender as ITargetable);
+		(n.sender as Entity).removeListener("ENTITY.DESTROY", onTargetDied);
+	}
+
+	// --------------------------------------------------------------------
+	// Waypoints
+	// --------------------------------------------------------------------
+	//
+	public virtual void addWaypoint(Vector3 w)
+	{
+		waypointList.Add(w);
+	}
+
+	public virtual void removeWaypoint(Vector3 w)
+	{
+		waypointList.Remove(w);
+	}
+
+	public virtual void removeFirstWaypoint()
+	{
+		if (waypointList.Count > 0)
+		{
+			waypointList.Remove(waypointList[0]);
+		}
+	}
+
+	public bool hasWaypoints()
+	{
+		// HACK create some new random waypoints...
+		//
+		if (waypointList.Count == 0)
+		{
+
+			Debug.Log ("Adding random locations...");
+			addWaypoint(Target.getRandomTargetLocation().getTargetLocation());
+			addWaypoint(Target.getRandomTargetLocation().getTargetLocation());
+			addWaypoint(Target.getRandomTargetLocation().getTargetLocation());
+			addWaypoint(Target.getRandomTargetLocation().getTargetLocation());
+		}
+
+		return (waypointList.Count > 0);
+	}
+
+	public Vector3 getNextWaypoint()
+	{
+		if (hasWaypoints())
+		{
+			return waypointList[0];
+		}
+		else
+		{
+			return new Vector3();
+			Debug.LogWarning("Warning: No valid waypoint returned!");
+		}
+	}
+
 
 	// --------------------------------------------------------------------
 	// Fire weapons
@@ -396,6 +469,10 @@ public class Actor : Entity, ITargetable {
 		{
 			w.fire();
 		}
+
+		// dispatch message
+		//
+		broadcast(new Notification(this, "ACTOR.FIRE", null));
 	}
 
 	// --------------------------------------------------------------------
@@ -413,23 +490,23 @@ public class Actor : Entity, ITargetable {
 			}
 			die();
 		}
+
+		// dispatch message
+		//
+		broadcast(new Notification(this, "ACTOR.DAMAGED", dmg));
 	}
 
 	// --------------------------------------------------------------------
 	// Death
 	// --------------------------------------------------------------------
 	//
-	public void die()
+	public override void die()
 	{
+		base.die();
+
 		Instantiate(Resources.Load("Bang"), t.position, t.rotation);
 
-		isAlive = false;
-
-		// remove target sphere
-		//
-		Destroy(targetMarker);
 		Destroy(this.gameObject);
-		Debug.Log ("KILL!");
 	}
 		
 	// --------------------------------------------------------------------
@@ -439,6 +516,10 @@ public class Actor : Entity, ITargetable {
 	public void addScore(int points) 
 	{
 		score += points;
+
+		// dispatch message
+		//
+		broadcast(new Notification(this, "ACTOR.SCORE", points));
 	}
 
 
@@ -460,6 +541,8 @@ public class Actor : Entity, ITargetable {
 	//
 	protected virtual void doCollision(Collision col)
 	{
-		//Debug.Log ("Collision!" + col.ToString());
+		// dispatch message
+		//
+		broadcast(new Notification(this, "ACTOR.COLLISION", null));
 	}
 }

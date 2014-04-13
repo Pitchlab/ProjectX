@@ -64,7 +64,7 @@ public class Target : Object
 	//
 	public static Target getRandomTargetLocation()
 	{
-		return new Target(new Vector3(Random.value * 400.0f - 200.0f,0.0f,Random.value * 4000.0f - 200.0f));
+		return new Target(new Vector3(Random.value * 400.0f - 200.0f,0.0f,Random.value * 400.0f - 200.0f));
 	}
 	
 	// --------------------------------------------------------------------

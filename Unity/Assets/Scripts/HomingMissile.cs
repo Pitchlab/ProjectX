@@ -4,7 +4,7 @@ using System.Collections;
 public class HomingMissile : Projectile 
 {
 
-	public float maxTurn			= 0.005f;	// radians
+	public float maxTurn			= 0.0001f;	// radians
 	
 	public float bearing;
 
@@ -20,8 +20,8 @@ public class HomingMissile : Projectile
 	// Use this for initialization
 	void Start () 
 	{
-		speed = 50.0f;
-		lifeTime = 100.0f;
+		speed = 100.0f;
+		lifeTime = 10.0f;
 
 		// supposedly helps caching
 		t = transform;
@@ -36,14 +36,10 @@ public class HomingMissile : Projectile
 			target = owner.getTarget();
 		}
 
-		Debug.Log ("owner found");
-
 		// turn towards target (if there is one)
 		//
 		if (target != null)
 		{
-			Debug.Log ("target lock");
-
 			// check if we need to turn left or right
 			// 
 			// the vector that we want to measure an angle from
@@ -69,7 +65,9 @@ public class HomingMissile : Projectile
 			Debug.DrawRay (t.position, newDirection, Color.cyan);
 			Debug.DrawRay (t.position, referenceForward, Color.red);
 
-			Vector3 nd = Vector3.RotateTowards(t.forward, newDirection, maxTurn, 0.0f);
+			Vector3 targetDir = target.getPosition()-t.position;
+			Vector3 nd = Vector3.RotateTowards(t.forward, targetDir, maxTurn * Time.deltaTime * 0.05f, 0.0f);
+			Debug.DrawRay(t.position, nd.normalized, Color.cyan);
 			t.rotation = Quaternion.LookRotation(nd);
 
 			// Turn
@@ -84,6 +82,24 @@ public class HomingMissile : Projectile
 	//
 	public void setTarget(ITargetable t)
 	{
+		if (target != null)
+		{
+			(target as Entity).removeListener("ENTITY.DESTROY", onTargetDied);
+		}
+
 		target = t;
+
+		(target as Entity).addListener("ENTITY.DESTROY", onTargetDied);
+	}
+
+
+	// message handler for ENTITY.DESTROY
+	//
+	private void onTargetDied(Notification n) 
+	{
+		target = null;
+		(n.sender as Entity).removeListener("ENTITY.DESTROY", onTargetDied);
+
+		die();
 	}
 }

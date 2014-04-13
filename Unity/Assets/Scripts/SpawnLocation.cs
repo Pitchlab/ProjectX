@@ -1,18 +1,17 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class SpawnLocation : MonoBehaviour {
-
-	private GameObject enemy;
-
+public class SpawnLocation : MonoBehaviour 
+{
+	
 	public  float delay = 1.0f;
 	private float timer = 0.0f;
 
-	// Use this for initialization
-	void Start () {
-	
-		spawn ();
+	public int faction = 0;
 
+	// Use this for initialization
+	void Start () 
+	{
 		spawn ();
 	}
 	
@@ -25,7 +24,7 @@ public class SpawnLocation : MonoBehaviour {
 			timer -= Time.deltaTime;
 		}
 		else {
-			timer += delay;
+			timer = delay + Random.Range(1.5f, 3.0f);
 			spawn ();
 		}
 	}
@@ -39,14 +38,13 @@ public class SpawnLocation : MonoBehaviour {
 		Actor a = goEnemy.AddComponent<Actor>();
 
 		a.init();
+		a.setFaction(faction);
 
-		a.t.Translate (Random.Range(-50.0f, 50.0f), 0.0f, Random.Range(-50.0f, 50.0f)); 
-		a.controller.setTurn(Random.value * 10.0f - 5.0f);
-		a.controller.setAcc(Random.value * 10.0f);
+		goEnemy.transform.Translate(gameObject.transform.position);
 
-		//GameObject.Instantiate(enemy, p, transform.rotation) as GameObject;
-		//Actor a = goEnemy.GetComponent<Actor>();
-
-		//Debug.Log ("Spawned Enemy");
+		for (int i=0; i<4; i++)
+		{
+			a.addWaypoint(GameObject.Find("s" + faction.ToString() + i.ToString()).transform.position);
+		}
 	}
 }

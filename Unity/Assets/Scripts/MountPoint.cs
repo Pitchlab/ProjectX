@@ -20,7 +20,7 @@ public class MountPoint : Entity
 		
 		// important stuff here...
 		//
-		name = "MountPoint";
+		//name = "MountPoint";
 		
 		isInitialized = true;
 	}
@@ -65,7 +65,6 @@ public class MountPoint : Entity
 		dismount ();
 
 		(item as Entity).transform.parent = gameObject.transform;
-		(item as Entity).setParent(this);
 
 		return true;
 	}
@@ -77,7 +76,6 @@ public class MountPoint : Entity
 		IMountable item = getMountedItem();
 		if (item != null)
 		{
-			(item as Entity).setParent(null);
 			Destroy(item as Entity);
 
 			return true;

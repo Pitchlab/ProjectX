@@ -18,23 +18,9 @@ public class Player : Actor {
 		prefabName = "SpaceShip";
 		base.init ();
 
-		// add weapon MountPoints
-		//
-		//MountPoint m = addMountPoint(new Vector3(), Quaternion.identity, "MountPointWeapon");
-		
-		// add a weapon
-		//
-		//LaserWeapon w = m.gameObject.AddComponent<LaserWeapon>();
-		//w.init();
-		//w.setOwner(this);
-		//mount(w, "MountPointWeapon");
-		
-		// add a weapon
-		//
-		//WpnLeft.owner  = this;
-		//WpnRight.owner = this;
-
 		this.name = "Player";
+
+		setFaction(1);
 
 		isInitialized = true;
 	}
@@ -66,8 +52,8 @@ public class Player : Actor {
 	//
 	protected override void doCollision(Collision col)
 	{
-		//Debug.Log ("Collision!" + col.ToString());
-		
+		base.doCollision(col);
+
 		// check what hit us
 		//
 		GameObject go = col.gameObject;

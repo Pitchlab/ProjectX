@@ -9,6 +9,9 @@ using System.Collections;
 // detect enemies and objectives in range. It will need access to the 
 // owner's target list.
 //
+// TODO make work with messages for actor instead of directly writing
+// into target list
+//
 public class MountableSensor : Entity, IMountable {
 
 	[SerializeField]
